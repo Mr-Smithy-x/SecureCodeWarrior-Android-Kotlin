@@ -2,6 +2,7 @@ package nyc.charlton.scw
 
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.Toast
@@ -12,29 +13,37 @@ class AppTamperingActivity : AppCompatActivity() {
 
     private val PACKAGE_NAME = "nyc.charlton.nyc"
 
-    private val knownRootPackages = arrayOf("com.noshufou.android.su",
-            "com.noshufou.android.su.elite",
-            "eu.chainfire.supersu",
-            "com.koushikdutta.superuser",
-            "com.thirdparty.superuser",
-            "com.yellowes.su")
+    private val knownRootPackages = arrayOf(
+        "com.noshufou.android.su",
+        "com.noshufou.android.su.elite",
+        "eu.chainfire.supersu",
+        "com.koushikdutta.superuser",
+        "com.thirdparty.superuser",
+        "com.yellowes.su"
+    )
 
-    private val knownRootCloakers = arrayOf("com.devadvance.rootcloak",
-            "com.devadvance.rootcloakplus",
-            "de.robv.android.xposed.installer",
-            "com.saurik.substrate",
-            "com.zachspong.temprootremovejb",
-            "com.amphoras.hidemyroot",
-            "com.amphoras.hidemyrootadfree",
-            "com.formyhm.hiderootPremium",
-            "com.formyhm.hideroot")
+    private val knownRootCloakers = arrayOf(
+        "com.devadvance.rootcloak",
+        "com.devadvance.rootcloakplus",
+        "de.robv.android.xposed.installer",
+        "com.saurik.substrate",
+        "com.zachspong.temprootremovejb",
+        "com.amphoras.hidemyroot",
+        "com.amphoras.hidemyrootadfree",
+        "com.formyhm.hiderootPremium",
+        "com.formyhm.hideroot"
+    )
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        if (!isAppRooted() && appNotTampered() && isAppFromAStore()) {
+        if (!isAppRooted() &&
+            appNotTampered() &&
+            isAppFromAStore()
+            && appNotRunningInEmulator()
+        ) {
             startActivity(Intent(this, LoginActivity::class.java))
         }
 
@@ -43,8 +52,10 @@ class AppTamperingActivity : AppCompatActivity() {
 
     private fun appNotTampered(): Boolean {
         if (packageName.compareTo(PACKAGE_NAME) != 0) {
-            Toast.makeText(this, "This app has been tampered",
-                    Toast.LENGTH_LONG).show()
+            Toast.makeText(
+                this, "This app has been tampered",
+                Toast.LENGTH_LONG
+            ).show()
             return false;
         }
         return true;
@@ -55,8 +66,10 @@ class AppTamperingActivity : AppCompatActivity() {
             val installer = packageManager.getInstallerPackageName(PACKAGE_NAME)
 
             if (installer == null) {
-                Toast.makeText(this, "App not from an app store",
-                        Toast.LENGTH_LONG).show()
+                Toast.makeText(
+                    this, "App not from an app store",
+                    Toast.LENGTH_LONG
+                ).show()
                 return false
             }
 
@@ -64,8 +77,10 @@ class AppTamperingActivity : AppCompatActivity() {
                 return true
             }
 
-            Toast.makeText(this, "App not from Play or Amazon stores",
-                    Toast.LENGTH_LONG).show()
+            Toast.makeText(
+                this, "App not from Play or Amazon stores",
+                Toast.LENGTH_LONG
+            ).show()
             return false;
         }
         return true
@@ -101,6 +116,29 @@ class AppTamperingActivity : AppCompatActivity() {
             }
         }
         return false
+    }
+
+    private fun appNotRunningInEmulator(): Boolean {
+        if (isEmulator()) {
+            Toast.makeText(
+                this, "This app can't run on an Emulator",
+                Toast.LENGTH_LONG
+            ).show()
+            return false;
+        }
+        return true;
+    }
+
+    private fun isEmulator(): Boolean {
+        return Build.FINGERPRINT.startsWith("generic")
+                || Build.FINGERPRINT.startsWith("unknown")
+                || Build.MODEL.contains("google_sdk")
+                || Build.MODEL.contains("Emulator")
+                || Build.MODEL.contains("Android SDK built for x86")
+                || Build.MANUFACTURER.contains("Genymotion")
+                || (Build.BRAND.startsWith("generic") && Build.DEVICE.startsWith("generic"))
+                || "google_sdk".equals(Build.PRODUCT)
+                || "goldfish".equals(Build.HARDWARE)
     }
 
 
