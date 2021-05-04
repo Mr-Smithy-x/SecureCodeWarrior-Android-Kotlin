@@ -10,7 +10,7 @@ import java.io.IOException
 
 class AppTamperingActivity : AppCompatActivity() {
 
-    private val PACKAGE_NAME = "nyc.charlton" //.nyc
+    private val PACKAGE_NAME = "nyc.charlton.nyc"
 
     private val knownRootPackages = arrayOf("com.noshufou.android.su",
             "com.noshufou.android.su.elite",
